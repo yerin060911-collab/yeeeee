@@ -7,12 +7,11 @@
     <style>
         :root {
             --primary: #4a90e2;
-            --bg-color: #f4f7f6;
+            --bg-color: #1a252f;
             --card-bg: #ffffff;
             --text-color: #333333;
-            --track-color: #2e7d32;
-            --lane-color: #388e3c;
-            --finish-line: #ffffff;
+            --track-green: #2e7d32;
+            --lane-border: rgba(255, 255, 255, 0.4);
         }
 
         body {
@@ -27,9 +26,10 @@
         }
 
         h1 {
-            margin-bottom: 10px;
-            color: #1b5e20;
+            margin-bottom: 15px;
+            color: #ffffff;
             text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .container {
@@ -40,13 +40,14 @@
             gap: 20px;
         }
 
+        /* 대시보드 */
         .dashboard {
             background-color: var(--card-bg);
-            padding: 20px;
+            padding: 15px 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
@@ -56,25 +57,46 @@
             text-align: center;
         }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 3px;
         }
 
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 컨트롤 및 베팅 */
         .controls {
             background-color: var(--card-bg);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
+        .controls h3 {
+            margin: 0 0 10px 0;
+            color: #1a252f;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
         .horse-setup {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
             gap: 10px;
         }
 
@@ -89,11 +111,12 @@
         }
 
         .horse-color-picker {
-            width: 25px;
-            height: 25px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
+            padding: 0;
         }
 
         input[type="text"], input[type="number"], select {
@@ -107,54 +130,94 @@
         .betting-section {
             display: flex;
             gap: 15px;
-            align-items: center;
+            align-items: flex-end;
             flex-wrap: wrap;
         }
 
+        .bet-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .bet-group label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #555;
+        }
+
         .btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             font-size: 1rem;
             font-weight: bold;
             color: white;
-            background-color: #2e7d32;
+            background-color: #27ae60;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.2s;
+            height: 38px;
         }
 
         .btn:hover {
-            background-color: #1b5e20;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
+            background-color: #219150;
         }
 
         .btn:disabled {
-            background-color: #ccc;
+            background-color: #bdc3c7;
             cursor: not-allowed;
         }
 
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
+        /* 경기장 및 관중석 디자인 */
+        .stadium-container {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            background-color: #273c75;
+            border: 3px solid #1e272e;
         }
 
+        /* 관중석 (스탠드) */
+        .spectators-stand {
+            height: 70px;
+            background: linear-gradient(180deg, #353b48 0%, #2f3640 100%);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #fbc531; /* 펜스 라인 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 5px 0;
+        }
+
+        /* 도트 스타일의 관중들 표현 */
+        .spectator-row {
+            display: flex;
+            justify-content: space-around;
+            font-size: 14px;
+            opacity: 0.85;
+            user-select: none;
+        }
+
+        /* 트랙 영역 */
         .racetrack {
-            background-color: var(--track-color);
-            border-radius: 12px;
-            padding: 20px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: repeating-linear-gradient(
+                0deg,
+                #2ed573,
+                #2ed573 20px,
+                #26af5f 20px,
+                #26af5f 40px
+            );
+            padding: 10px 0;
             position: relative;
             overflow: hidden;
         }
 
         .lane {
-            height: 50px;
-            border-bottom: 2px dashed rgba(255,255,255,0.3);
+            height: 52px;
+            border-bottom: 2px dashed var(--lane-border);
             position: relative;
             display: flex;
             align-items: center;
@@ -164,6 +227,25 @@
             border-bottom: none;
         }
 
+        /* 결승선 */
+        .finish-line {
+            position: absolute;
+            right: 110px; /* 말 오버플로우 방지를 위한 여백 */
+            top: 0;
+            bottom: 0;
+            width: 12px;
+            background: repeating-linear-gradient(
+                0deg,
+                #ffffff,
+                #ffffff 12px,
+                #000000 12px,
+                #000000 24px
+            );
+            z-index: 5;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        /* 말 캐릭터 */
         .horse {
             position: absolute;
             left: 0;
@@ -171,47 +253,37 @@
             transition: left 0.1s linear;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             white-space: nowrap;
+            z-index: 10;
         }
 
         .horse-name-tag {
-            font-size: 12px;
-            background: rgba(0,0,0,0.6);
+            font-size: 11px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.75);
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .finish-line {
-            position: absolute;
-            right: 40px;
-            top: 0;
-            bottom: 0;
-            width: 10px;
-            background: repeating-linear-gradient(
-                0deg,
-                #fff,
-                #fff 10px,
-                #000 10px,
-                #000 20px
-            );
-            z-index: 5;
-        }
-
+        /* 실시간 중계창 */
         .commentary {
-            background-color: #263238;
-            color: #eceff1;
+            background-color: #1e272e;
+            color: #00d2d3;
             padding: 15px;
             border-radius: 12px;
-            font-family: monospace;
-            height: 100px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            height: 90px;
             overflow-y: auto;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+            border: 1px solid #353b48;
         }
 
         .commentary p {
-            margin: 4px 0;
+            margin: 3px 0;
         }
     </style>
 </head>
@@ -226,57 +298,69 @@
         <!-- 대시보드 -->
         <div class="dashboard">
             <div class="stat-box">
-                <div>보유 코인</div>
+                <div class="stat-label">보유 코인</div>
                 <div class="stat-value" id="coin-display">1,000 G</div>
             </div>
             <div class="stat-box">
-                <div>트랙 길이</div>
-                <div class="stat-value" id="track-len-display">1000 m</div>
+                <div class="stat-label">트랙 경기장</div>
+                <div class="stat-value" id="track-len-display" style="color: #2980b9;">1000m</div>
             </div>
             <div class="audio-controls">
-                <label for="bgm-toggle">🎵 BGM:</label>
-                <button id="bgm-toggle" class="btn" style="padding: 5px 12px; font-size: 0.85rem;">재생/일시정지</button>
+                <button id="bgm-toggle" class="btn" style="background-color: #8e44ad;">🎵 BGM ON/OFF</button>
             </div>
         </div>
 
         <!-- 설정 및 베팅 -->
         <div class="controls">
-            <h3>말 설정</h3>
+            <h3>🐎 출전마 설정</h3>
             <div class="horse-setup" id="horse-setup-container">
                 <!-- JS에서 동적 생성 -->
             </div>
 
-            <h3>경주 설정 및 베팅</h3>
+            <h3>💰 베팅 및 경주 준비</h3>
             <div class="betting-section">
-                <div>
-                    <label for="distance-select">거리 선택:</label>
+                <div class="bet-group">
+                    <label for="distance-select">경주 거리</label>
                     <select id="distance-select">
                         <option value="800">800m (단거리)</option>
                         <option value="1000" selected>1000m (중거리)</option>
                         <option value="1200">1200m (장거리)</option>
                     </select>
                 </div>
-                <div>
-                    <label for="bet-horse">우승 예상 말:</label>
+                <div class="bet-group">
+                    <label for="bet-horse">우승 예상 말</label>
                     <select id="bet-horse"></select>
                 </div>
-                <div>
-                    <label for="bet-amount">베팅 금액:</label>
-                    <input type="number" id="bet-amount" value="100" min="10" step="10" style="width: 100px;">
+                <div class="bet-group">
+                    <label for="bet-amount">베팅 금액</label>
+                    <input type="number" id="bet-amount" value="100" min="10" step="10">
                 </div>
-                <button id="start-btn" class="btn">경주 시작!</button>
+                <button id="start-btn" class="btn" style="flex: 1; min-width: 140px;">경주 시작!</button>
             </div>
         </div>
 
-        <!-- 트랙 -->
-        <div class="racetrack" id="racetrack">
-            <div class="finish-line"></div>
-            <!-- 라인 및 말 동적 생성 -->
+        <!-- 관중석 + 트랙 통합 스타디움 -->
+        <div class="stadium-container">
+            <!-- 관중석 -->
+            <div class="spectators-stand">
+                <div class="spectator-row">
+                    <span>👨‍👩‍👧‍👦</span><span>🙋‍♂️</span><span>👏</span><span>👨‍🎤</span><span>🙌</span><span>🎉</span><span>👩‍👩‍👦</span><span>🙋‍♀️</span><span>📣</span><span>🥳</span><span>👨‍👩‍👧‍👦</span>
+                </div>
+                <div class="spectator-row">
+                    <span>📣</span><span>🥳</span><span>👩‍👩‍👧</span><span>🙋‍♂️</span><span>👏</span><span>🙌</span><span>👨‍👩‍👦‍👦</span><span>🎉</span><span>🙋‍♀️</span><span>👨‍💼</span><span>👏</span>
+                </div>
+            </div>
+
+            <!-- 레이스 트랙 -->
+            <div class="racetrack" id="racetrack">
+                <div class="finish-line"></div>
+                <!-- 라인 및 말 동적 생성 -->
+            </div>
         </div>
 
         <!-- 실시간 중계 -->
         <div class="commentary" id="commentary">
-            <p>🏁 경주 준비 완료! 베팅 후 시작 버튼을 눌러주세요.</p>
+            <p>🏁 관중들이 경기장에 입장을 완료했습니다! 베팅 후 시작 버튼을 눌러주세요.</p>
         </div>
     </div>
 
@@ -305,31 +389,30 @@
         const distanceSelect = document.getElementById('distance-select');
         const betAmountInput = document.getElementById('bet-amount');
 
-        // BGM 자동 재생 시도 (사용자 첫 클릭 시 활성화)
+        // BGM 자동 재생 처리
         function playBGM() {
             bgm.play().then(() => {
-                bgmToggleBtn.textContent = "🔊 음소거";
+                bgmToggleBtn.style.backgroundColor = "#27ae60";
             }).catch(err => {
-                // 상호작용 전 자동재생 제한 처리
                 console.log("Autoplay prevented:", err);
             });
         }
 
-        // 전체 화면 첫 클릭 시 BGM 재생 시작
+        // 화면 첫 클릭 시 BGM 재생
         document.body.addEventListener('click', () => {
             if (bgm.paused) {
                 playBGM();
             }
         }, { once: true });
 
-        // BGM 수동 토글 버튼
+        // BGM 토글 버튼
         bgmToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // body 클릭 이벤트 중복 방지
+            e.stopPropagation();
             if (bgm.paused) {
                 playBGM();
             } else {
                 bgm.pause();
-                bgmToggleBtn.textContent = "🔈 음소거 해제";
+                bgmToggleBtn.style.backgroundColor = "#8e44ad";
             }
         });
 
@@ -338,6 +421,10 @@
             renderHorseInputs();
             renderTrack();
             updateBetOptions();
+            
+            distanceSelect.addEventListener('change', (e) => {
+                document.getElementById('track-len-display').textContent = `${e.target.value}m`;
+            });
         }
 
         // 말 설정 UI 생성
@@ -353,7 +440,7 @@
                 setupContainer.appendChild(group);
             });
 
-            // 이름/색상 변경 이벤트
+            // 이름 및 색상 변경 이벤트
             document.querySelectorAll('.horse-name-input').forEach(input => {
                 input.addEventListener('input', (e) => {
                     const idx = e.target.dataset.index;
@@ -372,7 +459,7 @@
             });
         }
 
-        // 베팅 선택 드롭다운 업데이트
+        // 베팅 선택 드롭다운
         function updateBetOptions() {
             const currentSelected = betHorseSelect.value;
             betHorseSelect.innerHTML = '';
@@ -385,9 +472,8 @@
             if (currentSelected) betHorseSelect.value = currentSelected;
         }
 
-        // 트랙 화면에 말 배치
+        // 트랙 화면 구성
         function renderTrack() {
-            // 결승선 유지, 이전 레인 제거
             const existingLanes = racetrack.querySelectorAll('.lane');
             existingLanes.forEach(lane => lane.remove());
 
@@ -422,7 +508,6 @@
         startBtn.addEventListener('click', () => {
             if (isRacing) return;
 
-            // BGM 재생 보장
             playBGM();
 
             const betAmount = parseInt(betAmountInput.value);
@@ -435,23 +520,21 @@
                 return;
             }
 
-            // 코인 차감
             coins -= betAmount;
             coinDisplay.textContent = `${coins.toLocaleString()} G`;
 
             isRacing = true;
             startBtn.disabled = true;
-            commentary.innerHTML = ''; // 중계 초기화
-            logCommentary(`🚀 경주가 시작되었습니다! (거리: ${distanceSelect.value}m)`);
+            commentary.innerHTML = '';
+            logCommentary(`🚀 관중들의 함성 속에 경주가 시작되었습니다! (거리: ${distanceSelect.value}m)`);
 
-            // 위치 초기화 및 달리기 데이터
-            const trackWidth = racetrack.clientWidth - 100; // 결승선 위치 고려
-            const totalDistance = parseInt(distanceSelect.value);
+            // 결승선(Finish Line) 위치 기준으로 한계선 지정 (말이 결승선 너머 잘리지 않도록)
+            const trackWidth = racetrack.clientWidth - 160; 
             
             let progress = defaultHorses.map(h => ({
                 id: h.id,
                 name: h.name,
-                pos: 0, // 실제 이동 거리 (px)
+                pos: 0,
                 speed: 0
             }));
 
@@ -463,8 +546,7 @@
 
                 progress.forEach(p => {
                     if (p.pos < trackWidth) {
-                        // 랜던 속도 및 가속도 부여
-                        const randomSpeed = Math.random() * 8 + 2; 
+                        const randomSpeed = Math.random() * 9 + 2; 
                         p.pos += randomSpeed;
 
                         if (p.pos >= trackWidth) {
@@ -475,7 +557,6 @@
                             }
                         }
 
-                        // 말 위치 업데이트
                         const horseEl = document.getElementById(`horse-${p.id}`);
                         if (horseEl) {
                             horseEl.style.left = `${p.pos}px`;
@@ -488,12 +569,12 @@
                     }
                 });
 
-                // 무작위 선두 중계 (15% 확률)
-                if (Math.random() < 0.15 && rankList.length === 0) {
-                    logCommentary(`📢 현재 선두는 ${leadingHorse}! 거세게 치고 나갑니다!`);
+                // 무작위 선두 중계
+                if (Math.random() < 0.12 && rankList.length === 0) {
+                    logCommentary(`📢 관중석이 열광합니다! 현재 선두는 [${leadingHorse}]!`);
                 }
 
-                // 모든 말이 들어왔을 때
+                // 종료 조건
                 if (rankList.length === defaultHorses.length) {
                     clearInterval(racingInterval);
                     finishRace(rankList, betAmount);
@@ -501,7 +582,7 @@
             }, 100);
         });
 
-        // 경주 종료 처리
+        // 경주 완료
         function finishRace(rankList, betAmount) {
             isRacing = false;
             startBtn.disabled = false;
@@ -510,20 +591,20 @@
             const winner = defaultHorses.find(h => h.id === winnerId);
             const selectedBetId = parseInt(betHorseSelect.value);
 
-            logCommentary(`🎉 경주 종료! 우승마는 [${winner.name}]입니다!`);
+            logCommentary(`🎉 경주 종료! 오늘의 우승마는 [${winner.name}]입니다!`);
 
             if (selectedBetId === winnerId) {
-                const reward = betAmount * 3; // 3배 배당
+                const reward = betAmount * 3;
                 coins += reward;
                 logCommentary(`💰 축하합니다! 베팅에 성공하여 ${reward.toLocaleString()} G를 획득하셨습니다!`);
             } else {
-                logCommentary(`💸 아쉽게도 베팅에 실패하였습니다.`);
+                logCommentary(`💸 아쉽게도 베팅에 실패하셨습니다.`);
             }
 
             coinDisplay.textContent = `${coins.toLocaleString()} G`;
         }
 
-        // 초기 실행
+        // 초기화 실행
         init();
     </script>
 </body>
