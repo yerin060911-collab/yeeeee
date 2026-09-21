@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 말 달리기 게임</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --track-color: #2e7d32;
+            --lane-color: #388e3c;
+            --finish-line: #ffffff;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #1b5e20;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dashboard {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .controls {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .horse-setup {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .horse-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .horse-color-picker {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="text"], input[type="number"], select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .betting-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            background-color: #2e7d32;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .racetrack {
+            background-color: var(--track-color);
+            border-radius: 12px;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lane {
+            height: 50px;
+            border-bottom: 2px dashed rgba(255,255,255,0.3);
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .lane:last-child {
+            border-bottom: none;
+        }
+
+        .horse {
+            position: absolute;
+            left: 0;
+            font-size: 28px;
+            transition: left 0.1s linear;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .horse-name-tag {
+            font-size: 12px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 40px;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: repeating-linear-gradient(
+                0deg,
+                #fff,
+                #fff 10px,
+                #000 10px,
+                #000 20px
+            );
+            z-index: 5;
+        }
+
+        .commentary {
+            background-color: #263238;
+            color: #eceff1;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: monospace;
+            height: 100px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .commentary p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 배경음악 (bgm.mp3) -->
+    <audio id="bgm" src="bgm.mp3" loop></audio>
+
+    <h1>🏇 나만의 말 달리기 경주 🏇</h1>
+
+    <div class="container">
+        <!-- 대시보드 -->
+        <div class="dashboard">
+            <div class="stat-box">
+                <div>보유 코인</div>
+                <div class="stat-value" id="coin-display">1,000 G</div>
+            </div>
+            <div class="stat-box">
+                <div>트랙 길이</div>
+                <div class="stat-value" id="track-len-display">1000 m</div>
+            </div>
+            <div class="audio-controls">
+                <label for="bgm-toggle">🎵 BGM:</label>
+                <button id="bgm-toggle" class="btn" style="padding: 5px 12px; font-size: 0.85rem;">재생/일시정지</button>
+            </div>
+        </div>
+
+        <!-- 설정 및 베팅 -->
+        <div class="controls">
+            <h3>말 설정</h3>
+            <div class="horse-setup" id="horse-setup-container">
+                <!-- JS에서 동적 생성 -->
+            </div>
+
+            <h3>경주 설정 및 베팅</h3>
+            <div class="betting-section">
+                <div>
+                    <label for="distance-select">거리 선택:</label>
+                    <select id="distance-select">
+                        <option value="800">800m (단거리)</option>
+                        <option value="1000" selected>1000m (중거리)</option>
+                        <option value="1200">1200m (장거리)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="bet-horse">우승 예상 말:</label>
+                    <select id="bet-horse"></select>
+                </div>
+                <div>
+                    <label for="bet-amount">베팅 금액:</label>
+                    <input type="number" id="bet-amount" value="100" min="10" step="10" style="width: 100px;">
+                </div>
+                <button id="start-btn" class="btn">경주 시작!</button>
+            </div>
+        </div>
+
+        <!-- 트랙 -->
+        <div class="racetrack" id="racetrack">
+            <div class="finish-line"></div>
+            <!-- 라인 및 말 동적 생성 -->
+        </div>
+
+        <!-- 실시간 중계 -->
+        <div class="commentary" id="commentary">
+            <p>🏁 경주 준비 완료! 베팅 후 시작 버튼을 눌러주세요.</p>
+        </div>
+    </div>
+
+    <script>
+        // 초기 데이터
+        let coins = 1000;
+        let defaultHorses = [
+            { id: 1, name: "번개호", color: "#e74c3c" },
+            { id: 2, name: "적토마", color: "#e67e22" },
+            { id: 3, name: "흑마왕", color: "#34495e" },
+            { id: 4, name: "백설이", color: "#9b59b6" }
+        ];
+
+        let racingInterval = null;
+        let isRacing = false;
+
+        // DOM 요소
+        const bgm = document.getElementById('bgm');
+        const bgmToggleBtn = document.getElementById('bgm-toggle');
+        const coinDisplay = document.getElementById('coin-display');
+        const setupContainer = document.getElementById('horse-setup-container');
+        const betHorseSelect = document.getElementById('bet-horse');
+        const racetrack = document.getElementById('racetrack');
+        const commentary = document.getElementById('commentary');
+        const startBtn = document.getElementById('start-btn');
+        const distanceSelect = document.getElementById('distance-select');
+        const betAmountInput = document.getElementById('bet-amount');
+
+        // BGM 자동 재생 시도 (사용자 첫 클릭 시 활성화)
+        function playBGM() {
+            bgm.play().then(() => {
+                bgmToggleBtn.textContent = "🔊 음소거";
+            }).catch(err => {
+                // 상호작용 전 자동재생 제한 처리
+                console.log("Autoplay prevented:", err);
+            });
+        }
+
+        // 전체 화면 첫 클릭 시 BGM 재생 시작
+        document.body.addEventListener('click', () => {
+            if (bgm.paused) {
+                playBGM();
+            }
+        }, { once: true });
+
+        // BGM 수동 토글 버튼
+        bgmToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // body 클릭 이벤트 중복 방지
+            if (bgm.paused) {
+                playBGM();
+            } else {
+                bgm.pause();
+                bgmToggleBtn.textContent = "🔈 음소거 해제";
+            }
+        });
+
+        // 초기화
+        function init() {
+            renderHorseInputs();
+            renderTrack();
+            updateBetOptions();
+        }
+
+        // 말 설정 UI 생성
+        function renderHorseInputs() {
+            setupContainer.innerHTML = '';
+            defaultHorses.forEach((horse, index) => {
+                const group = document.createElement('div');
+                group.className = 'horse-input-group';
+                group.innerHTML = `
+                    <input type="color" class="horse-color-picker" value="${horse.color}" data-index="${index}">
+                    <input type="text" value="${horse.name}" data-index="${index}" class="horse-name-input">
+                `;
+                setupContainer.appendChild(group);
+            });
+
+            // 이름/색상 변경 이벤트
+            document.querySelectorAll('.horse-name-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const idx = e.target.dataset.index;
+                    defaultHorses[idx].name = e.target.value;
+                    updateBetOptions();
+                    renderTrack();
+                });
+            });
+
+            document.querySelectorAll('.horse-color-picker').forEach(picker => {
+                picker.addEventListener('input', (e) => {
+                    const idx = e.target.dataset.index;
+                    defaultHorses[idx].color = e.target.value;
+                    renderTrack();
+                });
+            });
+        }
+
+        // 베팅 선택 드롭다운 업데이트
+        function updateBetOptions() {
+            const currentSelected = betHorseSelect.value;
+            betHorseSelect.innerHTML = '';
+            defaultHorses.forEach(horse => {
+                const opt = document.createElement('option');
+                opt.value = horse.id;
+                opt.textContent = horse.name;
+                betHorseSelect.appendChild(opt);
+            });
+            if (currentSelected) betHorseSelect.value = currentSelected;
+        }
+
+        // 트랙 화면에 말 배치
+        function renderTrack() {
+            // 결승선 유지, 이전 레인 제거
+            const existingLanes = racetrack.querySelectorAll('.lane');
+            existingLanes.forEach(lane => lane.remove());
+
+            defaultHorses.forEach(horse => {
+                const lane = document.createElement('div');
+                lane.className = 'lane';
+                lane.id = `lane-${horse.id}`;
+
+                const horseEl = document.createElement('div');
+                horseEl.className = 'horse';
+                horseEl.id = `horse-${horse.id}`;
+                horseEl.style.left = '0px';
+                horseEl.innerHTML = `
+                    <span style="filter: drop-shadow(0 0 2px ${horse.color});">🐎</span>
+                    <span class="horse-name-tag" style="border-left: 3px solid ${horse.color}">${horse.name}</span>
+                `;
+
+                lane.appendChild(horseEl);
+                racetrack.appendChild(lane);
+            });
+        }
+
+        // 중계 로그 추가
+        function logCommentary(msg) {
+            const p = document.createElement('p');
+            p.textContent = msg;
+            commentary.appendChild(p);
+            commentary.scrollTop = commentary.scrollHeight;
+        }
+
+        // 경주 시작
+        startBtn.addEventListener('click', () => {
+            if (isRacing) return;
+
+            // BGM 재생 보장
+            playBGM();
+
+            const betAmount = parseInt(betAmountInput.value);
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("올바른 베팅 금액을 입력해주세요.");
+                return;
+            }
+            if (betAmount > coins) {
+                alert("보유 코인이 부족합니다.");
+                return;
+            }
+
+            // 코인 차감
+            coins -= betAmount;
+            coinDisplay.textContent = `${coins.toLocaleString()} G`;
+
+            isRacing = true;
+            startBtn.disabled = true;
+            commentary.innerHTML = ''; // 중계 초기화
+            logCommentary(`🚀 경주가 시작되었습니다! (거리: ${distanceSelect.value}m)`);
+
+            // 위치 초기화 및 달리기 데이터
+            const trackWidth = racetrack.clientWidth - 100; // 결승선 위치 고려
+            const totalDistance = parseInt(distanceSelect.value);
+            
+            let progress = defaultHorses.map(h => ({
+                id: h.id,
+                name: h.name,
+                pos: 0, // 실제 이동 거리 (px)
+                speed: 0
+            }));
+
+            let rankList = [];
+
+            racingInterval = setInterval(() => {
+                let leadingHorse = null;
+                let maxPos = -1;
+
+                progress.forEach(p => {
+                    if (p.pos < trackWidth) {
+                        // 랜던 속도 및 가속도 부여
+                        const randomSpeed = Math.random() * 8 + 2; 
+                        p.pos += randomSpeed;
+
+                        if (p.pos >= trackWidth) {
+                            p.pos = trackWidth;
+                            if (!rankList.includes(p.id)) {
+                                rankList.push(p.id);
+                                logCommentary(`🏁 [${rankList.length}등] ${p.name} 결승선 통과!`);
+                            }
+                        }
+
+                        // 말 위치 업데이트
+                        const horseEl = document.getElementById(`horse-${p.id}`);
+                        if (horseEl) {
+                            horseEl.style.left = `${p.pos}px`;
+                        }
+                    }
+
+                    if (p.pos > maxPos) {
+                        maxPos = p.pos;
+                        leadingHorse = p.name;
+                    }
+                });
+
+                // 무작위 선두 중계 (15% 확률)
+                if (Math.random() < 0.15 && rankList.length === 0) {
+                    logCommentary(`📢 현재 선두는 ${leadingHorse}! 거세게 치고 나갑니다!`);
+                }
+
+                // 모든 말이 들어왔을 때
+                if (rankList.length === defaultHorses.length) {
+                    clearInterval(racingInterval);
+                    finishRace(rankList, betAmount);
+                }
+            }, 100);
+        });
+
+        // 경주 종료 처리
+        function finishRace(rankList, betAmount) {
+            isRacing = false;
+            startBtn.disabled = false;
+
+            const winnerId = rankList[0];
+            const winner = defaultHorses.find(h => h.id === winnerId);
+            const selectedBetId = parseInt(betHorseSelect.value);
+
+            logCommentary(`🎉 경주 종료! 우승마는 [${winner.name}]입니다!`);
+
+            if (selectedBetId === winnerId) {
+                const reward = betAmount * 3; // 3배 배당
+                coins += reward;
+                logCommentary(`💰 축하합니다! 베팅에 성공하여 ${reward.toLocaleString()} G를 획득하셨습니다!`);
+            } else {
+                logCommentary(`💸 아쉽게도 베팅에 실패하였습니다.`);
+            }
+
+            coinDisplay.textContent = `${coins.toLocaleString()} G`;
+        }
+
+        // 초기 실행
+        init();
+    </script>
+</body>
+</html>
